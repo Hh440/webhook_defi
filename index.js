@@ -8,6 +8,8 @@ const app = express();
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
 app.post('/block-stream', async (req, res) => {
+    console.log("Incoming request body:", req.body); // Log the incoming data
+    
     try {
       const { blockNumber, timestamp, transactions } = req.body;
   
@@ -19,7 +21,7 @@ app.post('/block-stream', async (req, res) => {
       // Convert blockNumber from hexadecimal to BigInt
       const blockNumberBigInt = BigInt(blockNumber);
       
-      if (blockNumberBigInt <= 0n) { // Check if it's a valid BigInt
+      if (blockNumberBigInt <= 0n) {
         return res.status(400).json({ status: 'error', message: 'blockNumber must be greater than zero.' });
       }
   
@@ -36,18 +38,17 @@ app.post('/block-stream', async (req, res) => {
       // Create the block in the database
       const block = await prisma.block.create({
         data: {
-          blockNumber: blockNumberBigInt, // Use BigInt for blockNumber
-          timestamp: timestampDate, // Use the validated date
-          transactions: transactions.length // Count of transactions
+          blockNumber: blockNumberBigInt,
+          timestamp: timestampDate,
+          transactions: transactions.length
         },
       });
   
-      // Store each transaction linked to the block
       await Promise.all(transactions.map(async (tx) => {
         await prisma.transaction.create({
           data: {
             blockId: block.id,
-            data: tx, // Store the entire transaction JSON
+            data: tx,
           },
         });
       }));
@@ -58,7 +59,6 @@ app.post('/block-stream', async (req, res) => {
       res.status(500).json({ status: 'error', message: error.message });
     }
   });
-  
   
   
 
