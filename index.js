@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const bodyParser = require('body-parser');
 const { PrismaClient } = require('@prisma/client');
 
@@ -59,7 +59,7 @@ app.use(bodyParser.json());
       res.status(500).json({ status: 'error', message: error.message });
     }
   });
-  */
+  
 
   app.post('/block-stream', async (req, res) => {
     console.log("Received request:", JSON.stringify(req.body, null, 2)); // Log the entire request
@@ -114,3 +114,92 @@ app.use(bodyParser.json());
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+*/
+
+
+
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const bodyParser = require('body-parser');
+
+const app = express();
+const prisma = new PrismaClient();
+
+// Middleware to parse JSON body
+app.use(bodyParser.json());
+
+// Endpoint to receive block data
+app.post('/webhook/block', async (req, res) => {
+  const { block_number, content } = req.body;
+
+  // Validate block_number and content
+  if (typeof block_number !== 'number' || !content) {
+    return res.status(400).json({ error: 'Invalid block data format' });
+  }
+
+  try {
+    // Create a new block entry in the database
+    const blockData = await prisma.block.create({
+      data: {
+        blockNumber: BigInt(block_number), // Convert block_number to bigint
+        content: {
+          create: {
+            baseFeePerGas: content.baseFeePerGas,
+            blobGasUsed: content.blobGasUsed,
+            difficulty: content.difficulty,
+            excessBlobGas: content.excessBlobGas,
+            extraData: content.extraData,
+            gasLimit: content.gasLimit,
+            gasUsed: content.gasUsed,
+            hash: content.hash,
+            logsBloom: content.logsBloom,
+            miner: content.miner,
+            mixHash: content.mixHash,
+            nonce: content.nonce,
+            number: content.number,
+            parentBeaconBlockRoot: content.parentBeaconBlockRoot,
+            parentHash: content.parentHash,
+            receiptsRoot: content.receiptsRoot,
+            sha3Uncles: content.sha3Uncles,
+            size: content.size,
+            stateRoot: content.stateRoot,
+            timestamp: new Date(parseInt(content.timestamp, 16) * 1000), // Convert hex timestamp to Date
+            totalDifficulty: content.totalDifficulty,
+            transactions: {
+              create: content.transactions.map((transaction) => ({
+                accessList: transaction.accessList,
+                blockHash: transaction.blockHash,
+                blockNumber: BigInt(parseInt(transaction.blockNumber, 16)), // Convert hex to bigint
+                chainId: BigInt(parseInt(transaction.chainId, 16)), // Convert hex to bigint
+                from: transaction.from,
+                gas: BigInt(parseInt(transaction.gas, 16)), // Convert hex to bigint
+                gasPrice: BigInt(parseInt(transaction.gasPrice, 16)), // Convert hex to bigint
+                hash: transaction.hash,
+                input: transaction.input,
+                maxFeePerGas: BigInt(parseInt(transaction.maxFeePerGas, 16)), // Convert hex to bigint
+                maxPriorityFeePerGas: BigInt(parseInt(transaction.maxPriorityFeePerGas, 16)), // Convert hex to bigint
+                nonce: BigInt(parseInt(transaction.nonce, 16)), // Convert hex to bigint
+                to: transaction.to,
+                transactionIndex: BigInt(parseInt(transaction.transactionIndex, 16)), // Convert hex to bigint
+                type: BigInt(parseInt(transaction.type, 16)), // Convert hex to bigint
+                value: BigInt(parseInt(transaction.value, 16)), // Convert hex to bigint
+              })),
+            },
+          },
+        },
+      },
+    });
+
+    // Respond with success message and stored data
+    res.status(201).json({ message: 'Block data stored successfully', blockData });
+  } catch (error) {
+    console.error('Error storing block data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
