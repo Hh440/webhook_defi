@@ -139,7 +139,7 @@ app.post('/webhook/block', async (req, res) => {
     // Create a new block entry in the database
     const blockData = await prisma.block.create({
       data: {
-        blockNumber: BigInt(block_number), // Convert block_number to bigint
+        block_number: BigInt(block_number), // Convert block_number to bigint
         content: {
           create: {
             baseFeePerGas: content.baseFeePerGas,

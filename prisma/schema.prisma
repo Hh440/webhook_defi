@@ -14,7 +14,7 @@ datasource db {
 }
 model Block {
   id          Int          @id @default(autoincrement())
-  blockNumber BigInt       @unique
+  block_number BigInt       @unique
   content     BlockContent @relation(fields: [contentId], references: [id])
   contentId   Int          @unique
 }
