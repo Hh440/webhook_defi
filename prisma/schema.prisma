@@ -15,15 +15,15 @@ datasource db {
 
 
 model Block {
-  id                Int          @id @default(autoincrement())
-  blockNumber       Int
-  timestamp         DateTime
-  transactions      Transaction[] @relation("BlockTransactions")
+  id            Int          @id @default(autoincrement())
+  blockNumber   BigInt
+  timestamp     DateTime
+  transactions  Transaction[] @relation("BlockTransactions")
 }
 
 model Transaction {
-  id        Int    @id @default(autoincrement())
-  blockId   Int
-  data      Json   // Store transaction data as JSON
-  block     Block   @relation("BlockTransactions", fields: [blockId], references: [id])
+  id          Int      @id @default(autoincrement())
+  blockId     Int
+  data        Json     // Store transaction data as JSON
+  block       Block    @relation("BlockTransactions", fields: [blockId], references: [id])
 }

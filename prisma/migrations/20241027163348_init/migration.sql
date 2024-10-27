@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Block" ALTER COLUMN "blockNumber" SET DATA TYPE BIGINT;
