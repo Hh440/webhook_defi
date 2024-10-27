@@ -7,7 +7,7 @@ const app = express();
 
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
-app.post('/block-stream', async (req, res) => {
+/*app.post('/block-stream', async (req, res) => {
     console.log("Incoming request body:", req.body); // Log the incoming data
     
     try {
@@ -59,7 +59,55 @@ app.post('/block-stream', async (req, res) => {
       res.status(500).json({ status: 'error', message: error.message });
     }
   });
-  
+  */
+
+  app.post('/block-stream', async (req, res) => {
+    console.log("Received request:", JSON.stringify(req.body, null, 2)); // Log the entire request
+
+    const { blockNumber, timestamp, transactions } = req.body;
+
+    // Validate blockNumber format
+    if (!blockNumber || typeof blockNumber !== 'string' || !/^0x[0-9a-fA-F]+$/.test(blockNumber)) {
+        return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format. Expected a hexadecimal string.' });
+    }
+
+    // Validate timestamp
+    if (!timestamp || isNaN(new Date(timestamp))) {
+        return res.status(400).json({ status: 'error', message: 'Invalid timestamp format. Expected a valid date.' });
+    }
+
+    try {
+        // Convert block number to bigint for Prisma
+        const blockNumberBigInt = BigInt(blockNumber).toString(); // Convert to string for storage as bigint
+
+        // Create a new block entry in the database
+        const newBlock = await prisma.block.create({
+            data: {
+                blockNumber: blockNumberBigInt, // Store as a string representing bigint
+                timestamp: new Date(timestamp * 1000), // Convert timestamp from seconds to milliseconds
+                transactions: {
+                    create: transactions.map(tx => ({
+                        // Add your transaction fields here
+                        // Example:
+                        // txId: tx.id,
+                        // amount: tx.amount
+
+
+                        blockId: block.id,
+                        data: tx,
+                    }))
+                }
+            }
+        });
+
+        console.log("New block stored:", newBlock);
+        res.status(201).json({ status: 'success', data: newBlock });
+    } catch (error) {
+        console.error("Error storing block data:", error);
+        res.status(500).json({ status: 'error', message: 'Error storing block data.' });
+    }
+});
+
   
 
   app.get('/',async(req,res)=>{
