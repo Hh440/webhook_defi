@@ -134,7 +134,7 @@ app.post('/blocks', async (req, res) => {
     console.log('Incoming block data:', blockData); // Log incoming data
     
     try {
-        const blockNumber = BigInt(blockData.block_number);
+        const block_number = BigInt(blockData.block_number);
         const content = blockData.content;
 
         if (!content) {
@@ -143,7 +143,7 @@ app.post('/blocks', async (req, res) => {
 
         const newBlock = await prisma.block.create({
             data: {
-                blockNumber,
+                block_number,
                 content: {
                     create: {
                         baseFeePerGas: content.baseFeePerGas ? BigInt(content.baseFeePerGas) : undefined,
