@@ -133,9 +133,7 @@ app.post('/webhook/block', async (req, res) => {
   const { block_number, content } = req.body;
 
   // Validate block_number and content
-  if (typeof block_number !== 'number' || !content) {
-    return res.status(400).json({ error: 'Invalid block data format' });
-  }
+
 
   try {
     // Create a new block entry in the database
