@@ -11,22 +11,23 @@ app.post('/block-stream', async (req, res) => {
     try {
       const { blockNumber, timestamp, transactions } = req.body;
   
-      // Validate and convert blockNumber
-      if (!blockNumber || typeof blockNumber !== 'string' || !/^(0x)?[0-9a-fA-F]+$/.test(blockNumber)) {
-        return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format.' });
-      }
-      
-      const blockNumberDecimal = parseInt(blockNumber, 16); // Convert from hex to decimal
-      if (isNaN(blockNumberDecimal)) {
-        return res.status(400).json({ status: 'error', message: 'blockNumber is NaN after conversion.' });
+      // Validate blockNumber format
+      if (!blockNumber || typeof blockNumber !== 'string' || !/^0x[0-9a-fA-F]+$/.test(blockNumber)) {
+        return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format. Expected a hexadecimal string.' });
       }
   
-      // Validate and convert timestamp
+      // Convert blockNumber from hexadecimal to BigInt
+      const blockNumberBigInt = BigInt(blockNumber);
+      
+      if (blockNumberBigInt <= 0n) { // Check if it's a valid BigInt
+        return res.status(400).json({ status: 'error', message: 'blockNumber must be greater than zero.' });
+      }
+  
+      // Validate timestamp
       if (!timestamp || typeof timestamp !== 'number') {
         return res.status(400).json({ status: 'error', message: 'Invalid timestamp format.' });
       }
   
-      // Check if the timestamp is a valid number
       const timestampDate = new Date(timestamp * 1000); // Convert from seconds to milliseconds
       if (isNaN(timestampDate.getTime())) {
         return res.status(400).json({ status: 'error', message: 'Invalid timestamp value.' });
@@ -35,7 +36,7 @@ app.post('/block-stream', async (req, res) => {
       // Create the block in the database
       const block = await prisma.block.create({
         data: {
-          blockNumber: blockNumberDecimal,
+          blockNumber: blockNumberBigInt, // Use BigInt for blockNumber
           timestamp: timestampDate, // Use the validated date
           transactions: transactions.length // Count of transactions
         },
@@ -57,6 +58,7 @@ app.post('/block-stream', async (req, res) => {
       res.status(500).json({ status: 'error', message: error.message });
     }
   });
+  
   
   
 
