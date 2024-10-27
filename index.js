@@ -11,11 +11,24 @@ app.post('/block-stream', async (req, res) => {
     try {
       const { blockNumber, timestamp, transactions } = req.body;
   
+      // Check if blockNumber is provided and is a valid hexadecimal string
+      if (!blockNumber || typeof blockNumber !== 'string' || !/^(0x)?[0-9a-fA-F]+$/.test(blockNumber)) {
+        return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format.' });
+      }
+  
+      const blockNumberDecimal = parseInt(blockNumber, 16); // Convert from hex to decimal
+  
+      // Check if timestamp is valid
+      if (!timestamp || typeof timestamp !== 'number') {
+        return res.status(400).json({ status: 'error', message: 'Invalid timestamp format.' });
+      }
+  
       // Create the block first
       const block = await prisma.block.create({
         data: {
-          blockNumber: parseInt(blockNumber, 16), // Convert from hex to decimal
+          blockNumber: blockNumberDecimal,
           timestamp: new Date(timestamp * 1000), // Assuming timestamp is in seconds
+          transactions: transactions.length // Count of transactions
         },
       });
   
