@@ -66,10 +66,7 @@ app.use(bodyParser.json());
 
     const { blockNumber, timestamp, transactions } = req.body;
 
-    // Validate blockNumber format
-    if (!blockNumber || typeof blockNumber !== 'string' || !/^0x[0-9a-fA-F]+$/.test(blockNumber)) {
-        return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format. Expected a hexadecimal string.' });
-    }
+    
 
     // Validate timestamp
     if (!timestamp || isNaN(new Date(timestamp))) {
