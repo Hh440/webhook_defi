@@ -11,23 +11,32 @@ app.post('/block-stream', async (req, res) => {
     try {
       const { blockNumber, timestamp, transactions } = req.body;
   
-      // Check if blockNumber is provided and is a valid hexadecimal string
+      // Validate and convert blockNumber
       if (!blockNumber || typeof blockNumber !== 'string' || !/^(0x)?[0-9a-fA-F]+$/.test(blockNumber)) {
         return res.status(400).json({ status: 'error', message: 'Invalid blockNumber format.' });
       }
-  
+      
       const blockNumberDecimal = parseInt(blockNumber, 16); // Convert from hex to decimal
+      if (isNaN(blockNumberDecimal)) {
+        return res.status(400).json({ status: 'error', message: 'blockNumber is NaN after conversion.' });
+      }
   
-      // Check if timestamp is valid
+      // Validate and convert timestamp
       if (!timestamp || typeof timestamp !== 'number') {
         return res.status(400).json({ status: 'error', message: 'Invalid timestamp format.' });
       }
   
-      // Create the block first
+      // Check if the timestamp is a valid number
+      const timestampDate = new Date(timestamp * 1000); // Convert from seconds to milliseconds
+      if (isNaN(timestampDate.getTime())) {
+        return res.status(400).json({ status: 'error', message: 'Invalid timestamp value.' });
+      }
+  
+      // Create the block in the database
       const block = await prisma.block.create({
         data: {
           blockNumber: blockNumberDecimal,
-          timestamp: new Date(timestamp * 1000), // Assuming timestamp is in seconds
+          timestamp: timestampDate, // Use the validated date
           transactions: transactions.length // Count of transactions
         },
       });
@@ -48,6 +57,7 @@ app.post('/block-stream', async (req, res) => {
       res.status(500).json({ status: 'error', message: error.message });
     }
   });
+  
   
 
   app.get('/',async(req,res)=>{
