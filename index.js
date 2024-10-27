@@ -36,6 +36,10 @@ app.post('/block-stream', async (req, res) => {
     }
   });
   
+
+  app.get('/',async(req,res)=>{
+    res.json("this is just an storage endpoint")
+  })
   
 // Start the server
 const PORT = process.env.PORT || 3000;
