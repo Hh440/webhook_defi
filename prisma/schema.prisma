@@ -12,18 +12,58 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
-
 model Block {
-  id            Int          @id @default(autoincrement())
-  blockNumber   BigInt
-  timestamp     DateTime
-  transactions  Transaction[] @relation("BlockTransactions")
+  id          Int          @id @default(autoincrement())
+  blockNumber BigInt       @unique
+  content     BlockContent @relation(fields: [contentId], references: [id])
+  contentId   Int          @unique
+}
+
+model BlockContent {
+  id                  Int           @id @default(autoincrement())
+  baseFeePerGas      String
+  blobGasUsed        String
+  difficulty         String
+  excessBlobGas      String
+  extraData          String
+  gasLimit           String
+  gasUsed            String
+  hash               String
+  logsBloom          String
+  miner              String
+  mixHash            String
+  nonce              String
+  number             String
+  parentBeaconBlockRoot String
+  parentHash         String
+  receiptsRoot       String
+  sha3Uncles         String
+  size               String
+  stateRoot          String
+  timestamp          DateTime
+  totalDifficulty    String
+  transactions       Transaction[]
+  block              Block?        @relation // Adding the opposite relation
 }
 
 model Transaction {
-  id          Int      @id @default(autoincrement())
-  blockId     Int
-  data        Json     // Store transaction data as JSON
-  block       Block    @relation("BlockTransactions", fields: [blockId], references: [id])
+  id                   Int           @id @default(autoincrement())
+  accessList          Json
+  blockHash           String
+  blockNumber         BigInt
+  chainId             BigInt
+  from                String
+  gas                 BigInt
+  gasPrice            BigInt
+  hash                String
+  input               String
+  maxFeePerGas       BigInt
+  maxPriorityFeePerGas BigInt
+  nonce               BigInt
+  to                  String
+  transactionIndex    BigInt
+  type                BigInt
+  value               BigInt
+  content             BlockContent @relation(fields: [contentId], references: [id])
+  contentId           Int
 }
