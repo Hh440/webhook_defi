@@ -76,7 +76,7 @@ app.post('/blocks', async (req, res) => {
             }
         });
 
-        res.json(newBlock);
+        res.json("sucess");
     } catch (error) {
         console.error('Error storing block data:', error);
         res.status(500).json({ error: 'An error occurred while storing block data.' });
