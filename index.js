@@ -130,83 +130,70 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 
-
 // Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
     const blockData = req.body;
     console.log('Incoming block data:', blockData); // Log incoming data
-    
+
     try {
-        const block_number = blockData.block_number;
-        const content = blockData.content;
+        
 
-        if (!content) {
-            return res.status(400).json({ error: 'Content is required' });
-        }
-
+        // Create new block and transactions
         const newBlock = await prisma.block.create({
             data: {
-                baseFeePerGas:blockData.baseFeePerGas,
-                difficulty   :blockData.difficulty,
-                extraData    :blockData.extraData,
-                gasLimit     :blockData.gasLimit,
-                gasUsed      :blockData.gasUsed,
-                hash         :blockData.hash,
-                logsBloom    :blockData.logsBloom,
-                miner        :blockData.miner,
-                mixHash      :blockData.mixHash,
-                nonce        :blockData.nonce,
-                number       :blockData.number,
-                parentHash   :blockData.parentHash,
-                receiptsRoot :blockData.receiptsRoot,
-                sha3Uncles    :blockData.sha3Uncles,
-                stateRoot     :blockData.stateRoot,
-                timestamp     :blockData.timestamp,
-                totalDifficulty:blockData.totalDifficulty,
-                transactions:{
-                  create:{
-                    blockHash:blockData.transactions.blockHash,
-                    block_number:blockData.transactions.block_number,
-                    from  :blockData.transactions.from,
-                    gas:  blockData.transactions.gas,
-                    gasPrice :blockData.transactions.gasPrice,
-                    maxFeePerGas :blockData.transactions.maxFeePerGas,
-                    maxPriorityFeePerGas:blockData.transactions.maxPriorityFeePerGas,
-                    hash:blockData.transactions.hash,
-                    input:blockData.transactions.input,
-                    nonce :blockData.transactions.nonce,
-                    to:blockData.transactions.to,
-                    transactionIndex:blockData.transactions.transactionIndex,
-                    value:blockData.transactions.value,
-                    type: blockData.transactions.type,
-                    accessList :{
-                      create:{
-                        address:blockData.transactions.accessList.address,
-                        storageKeys:blockData.transactions.accessList.storageKeys 
-                      }
-                    },
-                    chainId:blockData.transactions.chainId,
-                    v:blockData.transactions.v,
-                    r:blockData.transactions.r,
-                    s:blockData.transactions.s,
-                    yParity:blockData.transactions.yParity
-                  }
+                baseFeePerGas: blockData.baseFeePerGas,
+                difficulty: blockData.difficulty,
+                extraData: blockData.extraData,
+                gasLimit: blockData.gasLimit,
+                gasUsed: blockData.gasUsed,
+                hash: blockData.hash,
+                logsBloom: blockData.logsBloom,
+                miner: blockData.miner,
+                mixHash: blockData.mixHash,
+                nonce: blockData.nonce,
+                number: blockData.number,
+                parentHash: blockData.parentHash,
+                receiptsRoot: blockData.receiptsRoot,
+                sha3Uncles: blockData.sha3Uncles,
+                stateRoot: blockData.stateRoot,
+                timestamp: blockData.timestamp,
+                totalDifficulty: blockData.totalDifficulty,
+                transactions: {
+                    create: blockData.transactions.map(transaction => ({
+                        blockHash: transaction.blockHash,
+                        blockNumber: transaction.block_number,
+                        from: transaction.from,
+                        gas: transaction.gas,
+                        gasPrice: transaction.gasPrice,
+                        hash: transaction.hash,
+                        input: transaction.input,
+                        nonce: transaction.nonce,
+                        to: transaction.to,
+                        transactionIndex: transaction.transactionIndex,
+                        type: transaction.type,
+                        value: transaction.value,
+                        chainId: transaction.chainId,
+                        accessList: {
+                            create: transaction.accessList.map(access => ({
+                                address: access.address,
+                                storageKeys: access.storageKeys
+                            }))
+                        }
+                    }))
                 },
-                transactionRoot:blockData.transactionRoot,
+                // Handle uncles if necessary
                 uncles: blockData.uncles,
-                withdrawals:{
-                  create:{
-                    index: blockData.withdrawals.index,
-                    validatorIndex :blockData.withdrawals.validatorIndex,
-                    address:blockData.withdrawals.address,
-                    amount:blockData.withdrawals.amount
-                  }
+                withdrawals: {
+                    create: blockData.withdrawals.map(withdrawal => ({
+                        index: withdrawal.index,
+                        validatorIndex: withdrawal.validatorIndex,
+                        address: withdrawal.address,
+                        amount: withdrawal.amount
+                    }))
                 },
-                withdrawalsRoot:blockData.withdrawalsRoot
-
-
-               
-            },
+                transactionRoot: blockData.transactionRoot,
+                withdrawalsRoot: blockData.withdrawalsRoot
+            }
         });
 
         res.json(newBlock);
@@ -216,9 +203,8 @@ app.post('/blocks', async (req, res) => {
     }
 });
 
-
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
