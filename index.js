@@ -14,12 +14,9 @@ app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 app.post('/blocks', async (req, res) => {
   const blocksData = req.body.data; // Attempt to retrieve 'data' from the request body
 
-  // Log to check the structure of req.body
   
-  if (!Array.isArray(blocksData)) {
-    console.error('Invalid data format:', blocksData);
-    return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
-  }
+  
+  
 
 
   try {
