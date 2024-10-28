@@ -128,7 +128,8 @@ const prisma = new PrismaClient();
 
 // Middleware to parse JSON body
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
+
 
 // Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
