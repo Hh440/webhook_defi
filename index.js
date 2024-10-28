@@ -1,3 +1,14 @@
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+const prisma = new PrismaClient();
+
+// Middleware to parse JSON body
+app.use(cors());
+app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 app.post('/blocks', async (req, res) => {
   const blocksData = req.body.data; // Attempt to retrieve 'data' from the request body
 
