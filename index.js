@@ -121,11 +121,13 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
 const prisma = new PrismaClient();
 
 // Middleware to parse JSON body
+app.use(cors());
 app.use(bodyParser.json());
 
 // Endpoint to receive block data
