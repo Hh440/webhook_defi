@@ -41,7 +41,7 @@ app.post('/blocks', async (req, res) => {
                   timestamp: blockData.timestamp,
                   totalDifficulty: blockData.totalDifficulty,
                   transactions: {
-                      create: transactions.map(tx => ({
+                      create: blockData.transactions.map(tx => ({
                           blockHash: tx.blockHash,
                           block_number: tx.blockNumber,
                           from: tx.from,
@@ -69,7 +69,7 @@ app.post('/blocks', async (req, res) => {
                   transactionRoot: blockData.transactionRoot,
                   uncles: blockData.uncles || [],
                   withdrawals: {
-                      create: withdrawals.map(withdrawal => ({
+                      create: blockData.withdrawals.map(withdrawal => ({
                           index: withdrawal.index,
                           validatorIndex: withdrawal.validatorIndex,
                           address: withdrawal.address,
