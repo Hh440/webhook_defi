@@ -137,7 +137,7 @@ app.post('/blocks', async (req, res) => {
     console.log('Incoming block data:', blockData); // Log incoming data
     
     try {
-        const block_number = BigInt(blockData.block_number);
+        const block_number = blockData.block_number;
         const content = blockData.content;
 
         if (!content) {
