@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 
 // Endpoint to receive block data
-pp.post('/blocks', async (req, res) => {
+app.post('/blocks', async (req, res) => {
   const blocksData = req.body.data; // Attempt to retrieve 'data' from the request body
 
   // Log to check the structure of req.body
