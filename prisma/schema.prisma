@@ -14,7 +14,7 @@ datasource db {
 }
 model Block {
   id          Int          @id @default(autoincrement())
-  block_number BigInt       @unique
+  block_number String       @unique
   content     BlockContent @relation(fields: [contentId], references: [id])
   contentId   Int          @unique
 }
@@ -40,7 +40,7 @@ model BlockContent {
   sha3Uncles         String
   size               String
   stateRoot          String
-  timestamp          DateTime
+  timestamp          String
   totalDifficulty    String
   transactions       Transaction[]
   block              Block?        @relation // Adding the opposite relation
@@ -50,20 +50,20 @@ model Transaction {
   id                   Int           @id @default(autoincrement())
   accessList          Json
   blockHash           String
-  blockNumber         BigInt
-  chainId             BigInt
+  block_number         BigInt
+  chainId             String
   from                String
-  gas                 BigInt
-  gasPrice            BigInt
+  gas                 String
+  gasPrice            String
   hash                String
   input               String
-  maxFeePerGas       BigInt
-  maxPriorityFeePerGas BigInt
-  nonce               BigInt
+  maxFeePerGas       String
+  maxPriorityFeePerGas String
+  nonce               String
   to                  String
-  transactionIndex    BigInt
-  type                BigInt
-  value               BigInt
+  transactionIndex    String
+  type                String
+  value               String
   content             BlockContent @relation(fields: [contentId], references: [id])
   contentId           Int
 }
