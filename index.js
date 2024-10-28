@@ -14,6 +14,11 @@ app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 app.post('/blocks', async (req, res) => {
   const blocksData = req.body.data; // Retrieve the entire array of blocks
 
+
+  if (!Array.isArray(blocksData)) {
+    return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
+}
+
   try {
       const newBlocks = await Promise.all(blocksData.map(async (blockData) => {
           // Convert hexadecimal fields to decimal strings
