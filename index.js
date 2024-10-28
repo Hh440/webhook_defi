@@ -17,10 +17,10 @@ app.post('/blocks', async (req, res) => {
   // Log to check the structure of req.body
   
   if (!Array.isArray(blocksData)) {
-      // If blocksData is not an array, respond with an error
-      console.error('Invalid data format:', blocksData);
-      return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
+    console.error('Invalid data format:', blocksData);
+    return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
   }
+
 
   try {
       const newBlocks = await Promise.all(blocksData.map(async (blockData) => {
