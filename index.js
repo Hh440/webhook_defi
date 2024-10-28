@@ -133,7 +133,7 @@ app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 // Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
     const blockData = req.body;
-    console.log('Incoming block data:', blockData); // Log incoming data
+   
 
     try {
         
