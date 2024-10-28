@@ -14,32 +14,32 @@ datasource db {
 }
 model Block {
   id          Int          @id @default(autoincrement())
-  baseFeePerGas      String
+  baseFeePerGas      String?
   //blobGasUsed        String
-  difficulty         String
+  difficulty         String?
   //  excessBlobGas      String
-  extraData          String
-  gasLimit           String
-  gasUsed            String
-  hash               String
-  logsBloom          String
-  miner              String
-  mixHash            String
-  nonce              String
-  number             String
+  extraData          String?
+  gasLimit           String?
+  gasUsed            String?
+  hash               String?
+  logsBloom          String?
+  miner              String?
+  mixHash            String?
+  nonce              String?
+  number             String?
   //  parentBeaconBlockRoot String
-  parentHash         String
-  receiptsRoot       String
-  sha3Uncles         String
-  size               String
-  stateRoot          String
-  timestamp          String
-  totalDifficulty    String
+  parentHash         String?
+  receiptsRoot       String?
+  sha3Uncles         String?
+  size               String?
+  stateRoot          String?
+  timestamp          String?
+  totalDifficulty    String?
   transactions       Transaction[]
   transactionRoot     String?
   uncles               String[]
   withdrawals          Withdrawals[]
-  withdrawalsRoot      String
+  withdrawalsRoot      String?
  
   
 }
@@ -48,25 +48,25 @@ model Block {
 
 model Transaction {
   id                   Int           @id @default(autoincrement())
-  blockHash           String
-  block_number         String
-  from                String
-  gas                 String
-  gasPrice            String
-  hash                String
-  input               String
+  blockHash           String?
+  block_number         String?
+  from                String?
+  gas                 String?
+  gasPrice            String?
+  hash                String?
+  input               String?
   //maxFeePerGas       String
   //maxPriorityFeePerGas String
-  nonce               String
-  to                  String
-  transactionIndex    String
-  value               String
-  type                String
+  nonce               String?
+  to                  String?
+  transactionIndex    String?
+  value               String?
+  type                String?
   accessList          AccessList[]
-  chainId             String
-  v                    String
-  r                    String
-  yParity              String
+  chainId             String?
+  v                    String?
+  r                    String?
+  yParity              String?
   block            Block @relation(fields: [id], references: [id])
   
 }
@@ -74,7 +74,7 @@ model Transaction {
 
 model AccessList{
   id           Int                  @id @default(autoincrement())
-  address      String
+  address      String?
   storageKeys   String[]
   accessId       Int
   transaction   Transaction   @relation(fields: [accessId], references: [id]) 
@@ -83,10 +83,10 @@ model AccessList{
 
 model Withdrawals{
   id                Int             @id @default(autoincrement())
-  index             String
-  validatorIndex    String
-  address           String
-  amount            String
+  index             String?
+  validatorIndex    String?
+  address           String?
+  amount            String?
   withdrawalId       Int
   block             Block        @relation(fields: [withdrawalId], references: [id])
 
