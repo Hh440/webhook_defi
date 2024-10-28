@@ -13,14 +13,10 @@ app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 // Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
     const blockData = req.body;
-    console.log('Incoming block data:', blockData); // Log incoming data
+    
 
     try {
-        const content = blockData.content;
-
-        if (!content) {
-            return res.status(400).json({ error: 'Content is required' });
-        }
+       
 
         // Create new block and transactions
         const newBlock = await prisma.block.create({
