@@ -67,7 +67,8 @@ model Transaction {
   v                    String?
   r                    String?
   yParity              String?
-  block            Block @relation(fields: [id], references: [id])
+  transactionId          Int
+  block            Block @relation(fields: [transactionId], references: [id])
   
 }
 
