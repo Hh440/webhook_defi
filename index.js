@@ -9,7 +9,9 @@ const prisma = new PrismaClient();
 // Middleware to parse JSON body
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
-app.post('/blocks', async (req, res) => {
+
+// Endpoint to receive block data
+pp.post('/blocks', async (req, res) => {
   const blocksData = req.body.data; // Attempt to retrieve 'data' from the request body
 
   // Log to check the structure of req.body
@@ -93,4 +95,10 @@ app.post('/blocks', async (req, res) => {
       console.error('Error storing block data:', error);
       res.status(500).json({ error: 'An error occurred while storing block data.' });
   }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
