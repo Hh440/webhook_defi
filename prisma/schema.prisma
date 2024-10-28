@@ -36,7 +36,7 @@ model Block {
   timestamp          String
   totalDifficulty    String
   transactions       Transaction[]
-  transactionRoot     String
+  transactionRoot     String?
   uncles               String[]
   withdrawals          Withdrawals[]
   withdrawalsRoot      String
