@@ -23,13 +23,7 @@ app.post('/blocks', async (req, res) => {
 
 
   try {
-      const newBlocks = await Promise.all(blocksData.map(async (blockData) => {
-          // Ensure nested objects exist before accessing their properties
-          const transactions = blockData.transactions || [];
-          const withdrawals = blockData.withdrawals || [];
-
-          // Create the block entry in your database
-          return await prisma.block.create({
+      const newBlocks =  await prisma.block.create({
               data: {
                   baseFeePerGas: blockData.baseFeePerGas,
                   difficulty: blockData.difficulty,
@@ -88,7 +82,7 @@ app.post('/blocks', async (req, res) => {
                   withdrawalsRoot: blockData.withdrawalsRoot,
               },
           });
-      }));
+    
 
       res.json({ message: 'Blocks stored successfully', data: newBlocks });
   } catch (error) {
