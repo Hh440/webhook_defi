@@ -1,29 +1,21 @@
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
-const app = express();
-const prisma = new PrismaClient();
-
-// Middleware to parse JSON body
-app.use(cors());
-app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
-
-// Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
-  const blocksData = req.body.data; // Retrieve the entire array of blocks
+  const blocksData = req.body.data; // Attempt to retrieve 'data' from the request body
 
-
+  // Log to check the structure of req.body
+  
   if (!Array.isArray(blocksData)) {
-    return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
-}
+      // If blocksData is not an array, respond with an error
+      console.error('Invalid data format:', blocksData);
+      return res.status(400).json({ error: "Invalid data format; 'data' should be an array." });
+  }
 
   try {
       const newBlocks = await Promise.all(blocksData.map(async (blockData) => {
-          // Convert hexadecimal fields to decimal strings
-          
+          // Ensure nested objects exist before accessing their properties
+          const transactions = blockData.transactions || [];
+          const withdrawals = blockData.withdrawals || [];
 
+          // Create the block entry in your database
           return await prisma.block.create({
               data: {
                   baseFeePerGas: blockData.baseFeePerGas,
@@ -44,15 +36,10 @@ app.post('/blocks', async (req, res) => {
                   stateRoot: blockData.stateRoot,
                   timestamp: blockData.timestamp,
                   totalDifficulty: blockData.totalDifficulty,
-                  transactionRoot: blockData.transactionsRoot,
-                  uncles: blockData.uncles,
-                  withdrawalsRoot: blockData.withdrawalsRoot,
-
-                  // Map transactions array
                   transactions: {
-                      create: blockData.transactions.map((tx) => ({
+                      create: transactions.map(tx => ({
                           blockHash: tx.blockHash,
-                          block_number: tx.block_number,
+                          block_number: tx.blockNumber,
                           from: tx.from,
                           gas: tx.gas,
                           gasPrice: tx.gasPrice,
@@ -63,30 +50,29 @@ app.post('/blocks', async (req, res) => {
                           transactionIndex: tx.transactionIndex,
                           value: tx.value,
                           type: tx.type,
+                          accessList: {
+                              create: (tx.accessList || []).map(access => ({
+                                  address: access.address,
+                                  storageKeys: access.storageKeys,
+                              })),
+                          },
                           chainId: tx.chainId,
                           v: tx.v,
                           r: tx.r,
                           yParity: tx.yParity,
-
-                          // Map accessList array within each transaction
-                          accessList: {
-                              create: tx.accessList.map((access) => ({
-                                  address: access.address,
-                                  storageKeys: access.storageKeys
-                              })),
-                          },
                       })),
                   },
-
-                  // Map withdrawals array
+                  transactionRoot: blockData.transactionRoot,
+                  uncles: blockData.uncles || [],
                   withdrawals: {
-                      create: blockData.withdrawals.map((withdrawal) => ({
-                          index: parseInt(withdrawal.index, 16).toString(),
-                          validatorIndex: parseInt(withdrawal.validatorIndex, 16).toString(),
+                      create: withdrawals.map(withdrawal => ({
+                          index: withdrawal.index,
+                          validatorIndex: withdrawal.validatorIndex,
                           address: withdrawal.address,
-                          amount: parseInt(withdrawal.amount, 16).toString(),
+                          amount: withdrawal.amount,
                       })),
                   },
+                  withdrawalsRoot: blockData.withdrawalsRoot,
               },
           });
       }));
@@ -96,10 +82,4 @@ app.post('/blocks', async (req, res) => {
       console.error('Error storing block data:', error);
       res.status(500).json({ error: 'An error occurred while storing block data.' });
   }
-});
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });
