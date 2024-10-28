@@ -14,17 +14,10 @@ datasource db {
 }
 model Block {
   id          Int          @id @default(autoincrement())
-  block_number String       @unique
-  content     BlockContent @relation(fields: [contentId], references: [id])
-  contentId   Int          @unique
-}
-
-model BlockContent {
-  id                  Int           @id @default(autoincrement())
   baseFeePerGas      String
-  blobGasUsed        String
+  //blobGasUsed        String
   difficulty         String
-  excessBlobGas      String
+  //  excessBlobGas      String
   extraData          String
   gasLimit           String
   gasUsed            String
@@ -34,7 +27,7 @@ model BlockContent {
   mixHash            String
   nonce              String
   number             String
-  parentBeaconBlockRoot String
+  //  parentBeaconBlockRoot String
   parentHash         String
   receiptsRoot       String
   sha3Uncles         String
@@ -43,27 +36,59 @@ model BlockContent {
   timestamp          String
   totalDifficulty    String
   transactions       Transaction[]
-  block              Block?        @relation // Adding the opposite relation
+  transactionRoot     String
+  uncles               String[]
+  withdrawals          Withdrawals[]
+  withdrawalsRoot      String
+ 
+  
 }
+
+
 
 model Transaction {
   id                   Int           @id @default(autoincrement())
-  accessList          Json
   blockHash           String
-  block_number         BigInt
-  chainId             String
+  block_number         String
   from                String
   gas                 String
   gasPrice            String
   hash                String
   input               String
-  maxFeePerGas       String
-  maxPriorityFeePerGas String
+  //maxFeePerGas       String
+  //maxPriorityFeePerGas String
   nonce               String
   to                  String
   transactionIndex    String
-  type                String
   value               String
-  content             BlockContent @relation(fields: [contentId], references: [id])
-  contentId           Int
+  type                String
+  accessList          AccessList[]
+  chainId             String
+  v                    String
+  r                    String
+  yParity              String
+  block            Block @relation(fields: [id], references: [id])
+  
+}
+
+
+model AccessList{
+  id           Int                  @id @default(autoincrement())
+  address      String
+  storageKeys   String[]
+  accessId       Int
+  transaction   Transaction   @relation(fields: [accessId], references: [id]) 
+}
+
+
+model Withdrawals{
+  id                Int             @id @default(autoincrement())
+  index             String
+  validatorIndex    String
+  address           String
+  amount            String
+  withdrawalId       Int
+  block             Block        @relation(fields: [withdrawalId], references: [id])
+
+
 }

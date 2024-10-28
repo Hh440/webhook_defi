@@ -146,52 +146,66 @@ app.post('/blocks', async (req, res) => {
 
         const newBlock = await prisma.block.create({
             data: {
-                block_number,
-                content: {
-                    create: {
-                        baseFeePerGas: content.baseFeePerGas ? BigInt(content.baseFeePerGas) : undefined,
-                        blobGasUsed: content.blobGasUsed ? BigInt(content.blobGasUsed) : undefined,
-                        difficulty: content.difficulty ? BigInt(content.difficulty) : undefined,
-                        excessBlobGas: content.excessBlobGas ? BigInt(content.excessBlobGas) : undefined,
-                        extraData: content.extraData,
-                        gasLimit: content.gasLimit ? BigInt(content.gasLimit) : undefined,
-                        gasUsed: content.gasUsed ? BigInt(content.gasUsed) : undefined,
-                        hash: content.hash,
-                        logsBloom: content.logsBloom,
-                        miner: content.miner,
-                        mixHash: content.mixHash,
-                        nonce: content.nonce ? BigInt(content.nonce) : undefined,
-                        number: content.number ? BigInt(content.number) : undefined,
-                        parentBeaconBlockRoot: content.parentBeaconBlockRoot,
-                        parentHash: content.parentHash,
-                        receiptsRoot: content.receiptsRoot,
-                        sha3Uncles: content.sha3Uncles,
-                        size: content.size ? BigInt(content.size) : undefined,
-                        stateRoot: content.stateRoot,
-                        timestamp: new Date(Number(content.timestamp) * 1000), // Convert to milliseconds
-                        totalDifficulty: content.totalDifficulty ? BigInt(content.totalDifficulty) : undefined,
-                        transactions: {
-                            create: content.transactions.map(tx => ({
-                                accessList: tx.accessList || [],
-                                blockHash: tx.blockHash,
-                                blockNumber: blockNumber, // Use blockNumber from the outer context
-                                chainId: BigInt(tx.chainId), // Ensure tx.chainId is defined
-                                from: tx.from,
-                                gas: BigInt(tx.gas), // Ensure tx.gas is defined
-                                gasPrice: BigInt(tx.gasPrice), // Ensure tx.gasPrice is defined
-                                hash: tx.hash,
-                                input: tx.input,
-                                maxFeePerGas: BigInt(tx.maxFeePerGas), // Ensure tx.maxFeePerGas is defined
-                                maxPriorityFeePerGas: BigInt(tx.maxPriorityFeePerGas), // Ensure tx.maxPriorityFeePerGas is defined
-                                nonce: BigInt(tx.nonce), // Ensure tx.nonce is defined
-                                to: tx.to,
-                                transactionIndex: BigInt(tx.transactionIndex), // Ensure tx.transactionIndex is defined
-                                type: BigInt(tx.type), // Ensure tx.type is defined
-                                value: BigInt(tx.value), // Ensure tx.value is defined
-                            })),
-                        },
+                baseFeePerGas:blockData.baseFeePerGas,
+                difficulty   :blockData.difficulty,
+                extraData    :blockData.extraData,
+                gasLimit     :blockData.gasLimit,
+                gasUsed      :blockData.gasUsed,
+                hash         :blockData.hash,
+                logsBloom    :blockData.logsBloom,
+                miner        :blockData.miner,
+                mixHash      :blockData.mixHash,
+                nonce        :blockData.nonce,
+                number       :blockData.number,
+                parentHash   :blockData.parentHash,
+                receiptsRoot :blockData.receiptsRoot,
+                sha3Uncles    :blockData.sha3Uncles,
+                stateRoot     :blockData.stateRoot,
+                timestamp     :blockData.timestamp,
+                totalDifficulty:blockData.totalDifficulty,
+                transactions:{
+                  create:{
+                    blockHash:blockData.transactions.blockHash,
+                    block_number:blockData.transactions.block_number,
+                    from  :blockData.transactions.from,
+                    gas:  blockData.transactions.gas,
+                    gasPrice :blockData.transactions.gasPrice,
+                    maxFeePerGas :blockData.transactions.maxFeePerGas,
+                    maxPriorityFeePerGas:blockData.transactions.maxPriorityFeePerGas,
+                    hash:blockData.transactions.hash,
+                    input:blockData.transactions.input,
+                    nonce :blockData.transactions.nonce,
+                    to:blockData.transactions.to,
+                    transactionIndex:blockData.transactions.transactionIndex,
+                    value:blockData.transactions.value,
+                    type: blockData.transactions.type,
+                    accessList :{
+                      create:{
+                        address:blockData.transactions.accessList.address,
+                        storageKeys:blockData.transactions.accessList.storageKeys 
+                      }
                     },
+                    chainId:blockData.transactions.chainId,
+                    v:blockData.transactions.v,
+                    r:blockData.transactions.r,
+                    s:blockData.transactions.s,
+                    yParity:blockData.transactions.yParity
+                  }
                 },
+                transactionRoot:blockData.transactionRoot,
+                uncles: blockData.uncles,
+                withdrawals:{
+                  create:{
+                    index: blockData.withdrawals.index,
+                    validatorIndex :blockData.withdrawals.validatorIndex,
+                    address:blockData.withdrawals.address,
+                    amount:blockData.withdrawals.amount
+                  }
+                },
+                withdrawalsRoot:blockData.withdrawalsRoot
+
+
+               
             },
         });
 
