@@ -12,75 +12,85 @@ app.use(bodyParser.json({ limit: '10mb' })); // Adjust the limit as needed
 
 // Endpoint to receive block data
 app.post('/blocks', async (req, res) => {
-    const blockData = req.body;
-    
+  const blocksData = req.body.data; // Retrieve the entire array of blocks
 
-    try {
-       
+  try {
+      const newBlocks = await Promise.all(blocksData.map(async (blockData) => {
+          // Convert hexadecimal fields to decimal strings
+          
 
-        // Create new block and transactions
-        const newBlock = await prisma.block.create({
-            data: {
-                baseFeePerGas: blockData.baseFeePerGas,
-                difficulty: blockData.difficulty,
-                extraData: blockData.extraData,
-                gasLimit: blockData.gasLimit,
-                gasUsed: blockData.gasUsed,
-                hash: blockData.hash,
-                logsBloom: blockData.logsBloom,
-                miner: blockData.miner,
-                mixHash: blockData.mixHash,
-                nonce: blockData.nonce,
-                number: blockData.number,
-                parentHash: blockData.parentHash,
-                receiptsRoot: blockData.receiptsRoot,
-                sha3Uncles: blockData.sha3Uncles,
-                stateRoot: blockData.stateRoot,
-                timestamp: blockData.timestamp,
-                totalDifficulty: blockData.totalDifficulty,
-                transactions: {
-                    create: Array.isArray(blockData.transactions) ? blockData.transactions.map(transaction => ({
-                        blockHash: transaction.blockHash,
-                        blockNumber: transaction.block_number,
-                        from: transaction.from,
-                        gas: transaction.gas,
-                        gasPrice: transaction.gasPrice,
-                        hash: transaction.hash,
-                        input: transaction.input,
-                        nonce: transaction.nonce,
-                        to: transaction.to,
-                        transactionIndex: transaction.transactionIndex,
-                        type: transaction.type,
-                        value: transaction.value,
-                        chainId: transaction.chainId,
-                        accessList: {
-                            create: Array.isArray(transaction.accessList) ? transaction.accessList.map(access => ({
-                                address: access.address,
-                                storageKeys: access.storageKeys
-                            })) : [] // Default to empty array if not an array
-                        }
-                    })) : [] // Default to empty array if not an array
-                },
-                // Handle uncles if necessary
-                uncles: blockData.uncles,
-                withdrawals: {
-                    create: Array.isArray(blockData.withdrawals) ? blockData.withdrawals.map(withdrawal => ({
-                        index: withdrawal.index,
-                        validatorIndex: withdrawal.validatorIndex,
-                        address: withdrawal.address,
-                        amount: withdrawal.amount
-                    })) : [] // Default to empty array if not an array
-                },
-                transactionRoot: blockData.transactionRoot,
-                withdrawalsRoot: blockData.withdrawalsRoot
-            }
-        });
+          return await prisma.block.create({
+              data: {
+                  baseFeePerGas: blockData.baseFeePerGas,
+                  difficulty: blockData.difficulty,
+                  extraData: blockData.extraData,
+                  gasLimit: blockData.gasLimit,
+                  gasUsed: blockData.gasUsed,
+                  hash: blockData.hash,
+                  logsBloom: blockData.logsBloom,
+                  miner: blockData.miner,
+                  mixHash: blockData.mixHash,
+                  nonce: blockData.nonce,
+                  number: blockData.number,
+                  parentHash: blockData.parentHash,
+                  receiptsRoot: blockData.receiptsRoot,
+                  sha3Uncles: blockData.sha3Uncles,
+                  size: blockData.size,
+                  stateRoot: blockData.stateRoot,
+                  timestamp: blockData.timestamp,
+                  totalDifficulty: blockData.totalDifficulty,
+                  transactionRoot: blockData.transactionsRoot,
+                  uncles: blockData.uncles,
+                  withdrawalsRoot: blockData.withdrawalsRoot,
 
-        res.json("sucess");
-    } catch (error) {
-        console.error('Error storing block data:', error);
-        res.status(500).json({ error: 'An error occurred while storing block data.' });
-    }
+                  // Map transactions array
+                  transactions: {
+                      create: blockData.transactions.map((tx) => ({
+                          blockHash: tx.blockHash,
+                          block_number: tx.block_number,
+                          from: tx.from,
+                          gas: tx.gas,
+                          gasPrice: tx.gasPrice,
+                          hash: tx.hash,
+                          input: tx.input,
+                          nonce: tx.nonce,
+                          to: tx.to,
+                          transactionIndex: tx.transactionIndex,
+                          value: tx.value,
+                          type: tx.type,
+                          chainId: tx.chainId,
+                          v: tx.v,
+                          r: tx.r,
+                          yParity: tx.yParity,
+
+                          // Map accessList array within each transaction
+                          accessList: {
+                              create: tx.accessList.map((access) => ({
+                                  address: access.address,
+                                  storageKeys: access.storageKeys
+                              })),
+                          },
+                      })),
+                  },
+
+                  // Map withdrawals array
+                  withdrawals: {
+                      create: blockData.withdrawals.map((withdrawal) => ({
+                          index: parseInt(withdrawal.index, 16).toString(),
+                          validatorIndex: parseInt(withdrawal.validatorIndex, 16).toString(),
+                          address: withdrawal.address,
+                          amount: parseInt(withdrawal.amount, 16).toString(),
+                      })),
+                  },
+              },
+          });
+      }));
+
+      res.json({ message: 'Blocks stored successfully', data: newBlocks });
+  } catch (error) {
+      console.error('Error storing block data:', error);
+      res.status(500).json({ error: 'An error occurred while storing block data.' });
+  }
 });
 
 // Start the server
