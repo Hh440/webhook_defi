@@ -101,6 +101,25 @@ app.post('/blocks', async (req, res) => {
   }
 });
 
+app.get('/blocks', async (req, res) => {
+  try {
+    const blocks = await prisma.block.findMany({
+      orderBy: {
+        id: 'desc', // Sort in descending order to get the latest blocks first
+      },
+      take: 20, // Limit the result to the latest 20 blocks
+      include: {
+        transactions: true, // Include transactions if needed
+        withdrawals: true, // Include withdrawals if needed
+      },
+    });
+    res.json(blocks);
+  } catch (error) {
+    console.error('Error fetching blocks:', error);
+    res.status(500).json({ error: 'Failed to fetch blocks' });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
