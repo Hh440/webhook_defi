@@ -107,16 +107,34 @@ app.get('/blocks', async (req, res) => {
       orderBy: {
         id: 'desc', // Sort in descending order to get the latest blocks first
       },
-      take: 20, // Limit the result to the latest 20 blocks
+      take: 5, // Limit the result to the latest 20 blocks
       include: {
-        transactions: true, // Include transactions if needed
-        withdrawals: true, // Include withdrawals if needed
+        transactions: false, // Include transactions if needed
+        withdrawals: false, // Include withdrawals if needed
       },
     });
     res.json(blocks);
   } catch (error) {
     console.error('Error fetching blocks:', error);
     res.status(500).json({ error: 'Failed to fetch blocks' });
+  }
+});
+
+app.get('/transactions', async (req, res) => {
+  try {
+    const transaction = await prisma.transaction.findMany({
+      orderBy: {
+        id: 'desc', // Sort in descending order to get the latest blocks first
+      },
+      take: 5, // Limit the result to the latest 20 blocks
+      include: {
+        accessList : false
+      },
+    });
+    res.json(transaction);
+  } catch (error) {
+    console.error('Error fetching trasactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
   }
 });
 
