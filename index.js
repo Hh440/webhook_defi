@@ -122,21 +122,32 @@ app.get('/blocks', async (req, res) => {
 
 app.get('/transactions', async (req, res) => {
   try {
-    const transaction = await prisma.transaction.findMany({
-      orderBy: {
-        id: 'desc', // Sort in descending order to get the latest blocks first
-      },
-      take: 5, // Limit the result to the latest 20 blocks
-      include: {
-        accessList : false
-      },
+    // Fetch the latest transaction, if any
+    const latestTransaction = await prisma.transaction.findFirst({
+      orderBy: { id: 'desc' },
     });
-    res.json(transaction);
+
+    // Check if a latest transaction was found
+    if (!latestTransaction) {
+      return res.status(404).json({ error: 'No transactions found' });
+    }
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        id: { lt: latestTransaction.id }, // Exclude the latest transaction
+      },
+      orderBy: { id: 'desc' },
+      take: 5,
+      include: { accessList: false },
+    });
+
+    res.json(transactions);
   } catch (error) {
-    console.error('Error fetching trasactions:', error);
+    console.error('Error fetching transactions:', error);
     res.status(500).json({ error: 'Failed to fetch transactions' });
   }
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
